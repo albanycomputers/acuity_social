@@ -1,0 +1,162 @@
+<?php
+
+function acuity_social_menu() {
+  $items['admin/acuity/acuity-social/settings'] = [
+    'title' => 'Social Settings',
+    'description' => 'Configure forum defaults and behavior.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => ['acuity_social_settings_form'],
+    'access arguments' => ['administer site configuration'],
+    'type' => MENU_NORMAL_ITEM,
+  ];
+
+  return $items;
+}
+
+function acuity_social_settings_form($form, &$form_state) {
+  $config = config('acuity_social.settings');
+
+  $form['forum_name'] = [
+    '#type' => 'textfield',
+    '#title' => t('Forum Name'),
+    '#default_value' => $config->get('forum_name'),
+    '#description' => t('The name of the social forum.'),
+  ];
+
+  $form['hero_header'] = [
+    '#type' => 'textfield',
+    '#title' => t('Hero Header'),
+    '#default_value' => $config->get('hero_header'),
+    '#description' => t('The header text displayed in the hero section of the forum.'),
+  ];
+
+  $form['hero_description'] = [
+    '#type' => 'textarea',
+    '#title' => t('Hero Description'),
+    '#default_value' => $config->get('hero_description'),
+    '#description' => t('A brief description displayed in the hero section of the forum.'),
+  ];
+
+  $form['allow_anonymous_view'] = [
+    '#type' => 'checkbox',
+    '#title' => t('Allow Anonymous Viewing'),
+    '#default_value' => $config->get('allow_anonymous_view'),
+    '#description' => t('Allow users to view channels without logging in. This does not allow posting or interaction.'),
+  ];
+
+  $form['max_post_length'] = [
+    '#type' => 'number',
+    '#title' => t('Maximum Post Length'),
+    '#default_value' => $config->get('max_post_length'),
+    '#description' => t('The maximum length of a chat message in characters. Set to 0 for no limit.'),
+    '#min' => 1,
+  ];
+
+  $form['enable_threading'] = [
+    '#type' => 'checkbox',
+    '#title' => t('Enable Threading'),
+    '#default_value' => $config->get('enable_threading'),
+    '#description' => t('Allow users to reply to specific messages, creating threaded conversations.'),
+  ];
+
+  $form['submit'] = [
+    '#type' => 'submit',
+    '#value' => t('Save settings'),
+  ];
+
+  return $form;
+}
+
+function acuity_social_settings_form_submit($form, &$form_state) {
+  $config = config('acuity_social.settings');
+  foreach ([
+    'forum_name',
+    'hero_header',
+    'hero_description',
+    'default_channel',
+    'allow_anonymous_view',
+    'max_post_length',
+    'enable_threading',
+  ] as $key) {
+    $config->set($key, $form_state['values'][$key]);
+  }
+  $config->save();
+  backdrop_set_message(t('Acuity Social settings saved.'));
+}
+
+/**
+ * Implements hook_entity_info().
+ */
+function acuity_social_entity_info() {
+  $info = [];
+
+  // Social Channel entity.
+  $info['social_channel'] = [
+    'label' => t('Social Channel'),
+    'entity class' => 'SocialChannel',
+    'controller class' => 'EntityPlusController',
+    'base table' => 'abms_social_channel',
+    'fieldable' => TRUE,
+    'entity keys' => [
+      'id' => 'id',
+      'label' => 'channel_name',
+      'bundle' => 'bundle',
+    ],
+    'bundles' => [
+      'default' => [
+        'label' => t('Social Channel'),
+        'admin' => [
+          'path' => 'admin/structure/social-channel',
+          'access arguments' => ['administer social channels'],
+        ],
+      ],
+    ],
+    'view modes' => [
+      'full' => [
+        'label' => t('Full'),
+        'custom settings' => TRUE,
+      ],
+      'teaser' => [
+        'label' => t('Teaser'),
+        'custom settings' => TRUE,
+      ],
+    ],
+    'module' => 'acuity_social',
+  ];
+
+  // Chat entity.
+  $info['Social_Chat'] = [
+    'label' => t('Social Chat'),
+    'entity class' => 'SocialChat',
+    'controller class' => 'EntityPlusController',
+    'base table' => 'abms_social_chat',
+    'fieldable' => TRUE,
+    'entity keys' => [
+      'id' => 'id',
+      'label' => 'chat_message',
+      'bundle' => 'bundle',
+    ],
+    'bundles' => [
+      'default' => [
+        'label' => t('Social Chat'),
+        'admin' => [
+          'path' => 'admin/structure/social-chat',
+          'access arguments' => ['administer chats'],
+        ],
+      ],
+    ],
+    'view modes' => [
+      'full' => [
+        'label' => t('Full'),
+        'custom settings' => TRUE,
+      ],
+      'teaser' => [
+        'label' => t('Teaser'),
+        'custom settings' => TRUE,
+      ],
+    ],
+    'module' => 'acuity_social',
+  ];
+
+  return $info;
+}

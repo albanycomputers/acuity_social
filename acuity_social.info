@@ -1,0 +1,17 @@
+name = Acuity Social
+
+description = Modular, social, and built with Acuity. Provides forums, profiles, messaging, and activity streams with entity-driven architecture.
+
+type = module
+
+package = Acuity - Business Management System
+
+version = 0.0.2
+
+backdrop = 1.x
+
+project = acuity_social
+
+dependencies[] = acuity_bms
+
+configure = admin/acuity/acuity-social/settings

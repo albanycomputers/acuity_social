@@ -1,0 +1,20 @@
+{
+  "_config_name": "acuity_social.settings",
+  "forum_name": "Acuity Forum",
+  "hero_header": "Welcome to Acuity Forum",
+  "hero_description": "A space for thoughtful discussion, curated by topic. Join the conversation.",
+  "allow_anonymous_view": true,
+  "max_post_length": 1000,
+  "enable_threading": false,
+
+  "status_map": {
+    "ok": 0,
+    "reported": 1,
+    "removed": 2
+  },
+
+  "visibility_map": {
+    "public": 0,
+    "members_only": 1
+  }
+}

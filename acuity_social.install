@@ -1,0 +1,185 @@
+<?php
+
+/**
+ * Implements hook_schema().
+ *
+ * Dynamically loads and returns database schemas for acuity_socials.
+ */
+function acuity_social_schema() {
+  $schema = [];
+
+  /**
+   * Schema for the acuity_social_header table.
+   */
+  $schema['abms_social_channel'] = [
+  'description' => 'Stores chat channel metadata.',
+  'fields' => [
+    'id' => [
+      'type' => 'serial',
+      'not null' => TRUE,
+      'description' => 'Primary Key: Unique channel ID.',
+    ],
+    'uid' => [
+      'type' => 'int',
+      'not null' => TRUE,
+      'description' => 'User ID who created the channel.',
+    ],
+    'channel_name' => [
+      'type' => 'varchar',
+      'length' => 255,
+      'not null' => TRUE,
+      'description' => 'Short name of the channel.',
+    ],
+    'channel_desc' => [
+      'type' => 'text',
+      'description' => 'Long description of the channel.',
+    ],
+    'channel_image' => [
+      'type' => 'varchar',
+      'length' => 255,
+      'description' => 'Path to channel header image.',
+    ],
+    'visibility' => [
+      'type' => 'int',
+      'size' => 'tiny',
+      'not null' => TRUE,
+      'default' => 0,
+      'description' => 'Visibility setting: 0=public, 1=private.',
+    ],
+      'weight' => [
+      'type' => 'int',
+      'not null' => TRUE,
+      'default' => 0,
+      'description' => 'Ordering weight for display. Lower values appear first.',
+    ],
+      'created' => [
+      'type' => 'int',
+      'not null' => TRUE,
+      'description' => 'Timestamp of creation.',
+    ],
+    'updated' => [
+  'type' => 'int',
+  'not null' => TRUE,
+  'default' => 0,
+  'description' => 'Timestamp of last update.',
+],
+  ],
+  'primary key' => ['id'],
+  'indexes' => [
+    'uid' => ['uid'],
+    'visibility' => ['visibility'],
+  ],
+];
+
+
+  /**
+   * Schema for the base schema acuity_soc1al_chats table.
+   */
+  $schema['abms_social_chat'] = [
+  'description' => 'Stores individual chat messages.',
+  'fields' => [
+    'id' => [
+      'type' => 'serial',
+      'not null' => TRUE,
+      'description' => 'Primary Key: Unique chat ID.',
+    ],
+    'idchannel' => [
+      'type' => 'int',
+      'not null' => TRUE,
+      'description' => 'Foreign key to chat channel.',
+    ],
+    'parent' => [
+      'type' => 'int',
+      'description' => 'Parent message ID for threading.',
+    ],
+    'uid' => [
+      'type' => 'int',
+      'not null' => TRUE,
+      'description' => 'User ID of the poster.',
+    ],
+    'created' => [
+      'type' => 'int',
+      'not null' => TRUE,
+      'description' => 'Timestamp of creation.',
+    ],
+    'updated' => [
+      'type' => 'int',
+      'description' => 'Timestamp of last update.',
+    ],
+    'chat_message' => [
+      'type' => 'text',
+      'description' => 'Content of the message.',
+    ],
+    'chat_image' => [
+      'type' => 'varchar',
+      'length' => 255,
+      'description' => 'Path to attached image.',
+    ],
+    'visability' => [
+      'type' => 'int',
+      'size' => 'tiny',
+      'not null' => TRUE,
+      'default' => 0,
+      'description' => 'Visibility: 0=public, 1=private.',
+    ],
+    'status' => [
+      'type' => 'int',
+      'size' => 'tiny',
+      'not null' => TRUE,
+      'default' => 0,
+      'description' => 'Status: 0=ok, 1=reported, 2=removed.',
+    ],
+  ],
+  'primary key' => ['id'],
+  'indexes' => [
+    'idchannel' => ['idchannel'],
+    'uid' => ['uid'],
+    'parent' => ['parent'],
+    'status' => ['status'],
+  ],
+];
+
+$schema['abms_social_likes'] = [
+  'description' => 'Stores likes and reactions to chat messages.',
+  'fields' => [
+    'id' => [
+      'type' => 'int',
+      'not null' => TRUE,
+      'description' => 'Chat ID being liked.',
+    ],
+    'uid' => [
+      'type' => 'int',
+      'not null' => TRUE,
+      'description' => 'User ID who liked the message.',
+    ],
+    'likes' => [
+      'type' => 'int',
+      'not null' => TRUE,
+      'description' => 'Reaction type (taxonomy term ID or enum).',
+    ],
+  ],
+  'primary key' => ['id', 'uid'],
+  'indexes' => [
+    'likes' => ['likes'],
+  ],
+];
+
+  return $schema;
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function acuity_social_uninstall() {
+
+  $config = config('acuity_social.settings');
+  $config->delete();
+
+  // Drop the Acuity Social table.
+  db_drop_table('abms_social_channels');
+  db_drop_table('abms_social_chats');
+  db_drop_table('abms_social_likes');
+
+  // Clear the cache to ensure the uninstall is fully processed.
+  cache_clear_all('*', 'cache_menu', TRUE);
+}
