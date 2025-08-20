@@ -3,7 +3,7 @@
 /**
  * Defines the Chat entity class.
  */
-class AcuitySocialChat extends Entity {
+class AcuitySocialChat extends EntityDefaultUIController {
   public $id;
   public $idchannel;
   public $parent;
@@ -19,7 +19,7 @@ class AcuitySocialChat extends Entity {
    * Returns the entity type machine name.
    */
   public function entityType() {
-    return 'social_chat';
+    return 'acuity_social_chat';
   }
 
   /**

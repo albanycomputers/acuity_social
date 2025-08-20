@@ -3,7 +3,7 @@
 /**
  * Defines the ContactHeader entity class.
  */
-class AcuitySocialChannel extends Entity {
+class AcuitySocialChannel extends EntityDefaultUIController {
   public $id;
   public $uid;
   public $parent_id;
@@ -18,7 +18,7 @@ class AcuitySocialChannel extends Entity {
    * Returns the entity type machine name.
    */
   public function entityType() {
-    return 'social_channel';
+    return 'acuity_social_channel';
   }
 
   /**

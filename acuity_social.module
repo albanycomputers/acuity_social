@@ -1,5 +1,20 @@
 <?php
 
+
+/**
+ * Implements hook_autoload_info().
+ *
+ * Provides a direct map of class names to their file locations.
+ */
+function acuity_social_autoload_info() {
+  return array(
+    'AcuitySocialChannel' => 'includes/acuity_social_channel.class.inc',
+    'AcuitySocialChannelController' => 'includes/acuity_social_channel.controller.inc',
+    'AcuitySocialChat' => 'includes/acuity_social_chat.class.inc',
+    'AcuitySocialChatController' => 'includes/acuity_social_chat.controller.inc',
+  );
+}
+
 function acuity_social_menu() {
   $items['admin/acuity/acuity-social/settings'] = [
     'title' => 'Social Settings',
@@ -128,6 +143,7 @@ function acuity_social_entity_info() {
   $info['acuity_social_chat'] = [
     'label' => t('Social Chat'),
     'entity class' => 'AcuitySocialChat',
+    //'controller class' => 'EntityPlusController',
     'controller class' => 'AcuitySocialChatController',
     'base table' => 'abms_social_chat',
     'fieldable' => TRUE,
@@ -159,4 +175,38 @@ function acuity_social_entity_info() {
   ];
 
   return $info;
+}
+
+
+/**
+ * Implements hook_permission().
+ */
+function acuity_social_permission() {
+  return array(
+    'administer acuity social' => array(
+      'title' => t('Administer Acuity Social settings'),
+      'description' => t('Access the main configuration page for the Acuity Social module.'),
+      'restrict access' => TRUE,
+    ),
+    'view acuity social channels' => array(
+      'title' => t('View social channels'),
+      'description' => t('View the main feed and individual social channel pages.'),
+    ),
+    'create acuity social channels' => array(
+      'title' => t('Create new social channels'),
+      'description' => t('Allows users to post new topics/channels.'),
+    ),
+    'edit own acuity social channels' => array(
+      'title' => t('Edit own social channels'),
+      'description' => t('Allows users to edit the channels they have created.'),
+    ),
+    'delete own acuity social channels' => array(
+      'title' => t('Delete own social channels'),
+      'description' => t('Allows users to delete the channels they have created.'),
+    ),
+    'delete any acuity social channels' => array(
+      'title' => t('Delete any social channels'),
+      'description' => t('Allows moderators to delete channels created by any user.'),
+    ),
+  );
 }
