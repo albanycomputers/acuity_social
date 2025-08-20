@@ -91,10 +91,10 @@ function acuity_social_entity_info() {
   $info = [];
 
   // Social Channel entity.
-  $info['social_channel'] = [
+  $info['acuity_social_channel'] = [
     'label' => t('Social Channel'),
-    'entity class' => 'SocialChannel',
-    'controller class' => 'EntityPlusController',
+    'entity class' => 'AcuitySocialChannel',
+    'controller class' => 'AcuitySocialChannelController',
     'base table' => 'abms_social_channel',
     'fieldable' => TRUE,
     'entity keys' => [
@@ -125,10 +125,10 @@ function acuity_social_entity_info() {
   ];
 
   // Chat entity.
-  $info['Social_Chat'] = [
+  $info['acuity_social_chat'] = [
     'label' => t('Social Chat'),
-    'entity class' => 'SocialChat',
-    'controller class' => 'EntityPlusController',
+    'entity class' => 'AcuitySocialChat',
+    'controller class' => 'AcuitySocialChatController',
     'base table' => 'abms_social_chat',
     'fieldable' => TRUE,
     'entity keys' => [

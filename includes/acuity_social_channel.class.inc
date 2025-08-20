@@ -3,7 +3,7 @@
 /**
  * Defines the ContactHeader entity class.
  */
-class SocialChannel extends Entity {
+class AcuitySocialChannel extends Entity {
   public $id;
   public $uid;
   public $parent_id;

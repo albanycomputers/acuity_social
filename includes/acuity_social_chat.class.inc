@@ -3,7 +3,7 @@
 /**
  * Defines the Chat entity class.
  */
-class SocialChat extends Entity {
+class AcuitySocialChat extends Entity {
   public $id;
   public $idchannel;
   public $parent;
