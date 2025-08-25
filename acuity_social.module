@@ -12,21 +12,86 @@ function acuity_social_autoload_info() {
     'AcuitySocialChannelController' => 'includes/acuity_social_channel.controller.inc',
     'AcuitySocialChat' => 'includes/acuity_social_chat.class.inc',
     'AcuitySocialChatController' => 'includes/acuity_social_chat.controller.inc',
+    'acuity_social.admin.inc' => 'acuity_social.admin.inc',
   );
 }
 
+/**
+ * Implements hook_menu().
+ */
 function acuity_social_menu() {
-  $items['admin/acuity/acuity-social/settings'] = [
+  $items = [];
+
+  // Main administration page for Acuity Social.
+  $items['admin/acuity/social'] = [
     'title' => 'Social Settings',
-    'description' => 'Configure forum defaults and behavior.',
-    'page callback' => 'drupal_get_form',
+    'description' => 'Configure Acuity Social defaults and behavior.',
+    'page callback' => 'backdrop_get_form',
     'page arguments' => ['acuity_social_settings_form'],
-    'access arguments' => ['administer site configuration'],
+    'access arguments' => ['administer acuity social'],
     'type' => MENU_NORMAL_ITEM,
   ];
 
+  // Main administration page for Chat settings.
+  $items['admin/acuity/social/chats'] = [
+    'title' => 'Chat Fields',
+    'description' => 'Configure Acuity Social defaults and behavior.',
+    'page callback' => 'backdrop_get_form',
+    'page arguments' => ['acuity_social_settings_form'],
+    'access arguments' => ['administer acuity social'],
+    'type' => MENU_NORMAL_ITEM,
+  ];
+
+  // Main administration page for Chat settings.
+  $items['admin/acuity/social/channels'] = [
+    'title' => 'Channel Fields',
+    'description' => 'Configure Acuity Social defaults and behavior.',
+    'page callback' => 'backdrop_get_form',
+    'page arguments' => ['acuity_social_settings_form'],
+    'access arguments' => ['administer acuity social'],
+    'type' => MENU_NORMAL_ITEM,
+  ];
+
+
+
+// Page for viewing a single channel.
+  $items['social-channel/%acuity_social_channel'] = [
+    'title callback' => 'entity_label',
+    'title arguments' => ['acuity_social_channel', 1],
+    'page callback' => 'acuity_social_channel_page_view',
+    'page arguments' => [1],
+    'access callback' => 'acuity_social_channel_access',
+    'access arguments' => ['view', 1],
+  ];
+
+  // Page for editing a channel.
+  $items['social-channel/%acuity_social_channel/edit'] = [
+    'title' => 'Edit',
+    'page callback' => 'backdrop_get_form',
+    'page arguments' => ['acuity_social_channel_form', 1],
+    'access callback' => 'acuity_social_channel_access',
+    'access arguments' => ['update', 1],
+    'file' => 'acuity_social.admin.inc',
+    'file path' => backdrop_get_path('module', 'acuity_social'),
+    'type' => MENU_LOCAL_TASK,
+  ];
+
+  // Page for deleting a channel.
+  $items['social-channel/%acuity_social_channel/delete'] = [
+    'title' => 'Delete',
+    'page callback' => 'backdrop_get_form', // Corrected function name
+    'page arguments' => ['acuity_social_channel_delete_form', 1],
+    'access callback' => 'acuity_social_channel_access',
+    'access arguments' => ['delete', 1],
+    'file' => 'acuity_social.admin.inc',
+    'file path' => backdrop_get_path('module', 'acuity_social'),
+    'type' => MENU_LOCAL_TASK,
+  ];
+
+
   return $items;
 }
+
 
 function acuity_social_settings_form($form, &$form_state) {
   $config = config('acuity_social.settings');
@@ -121,7 +186,7 @@ function acuity_social_entity_info() {
       'default' => [
         'label' => t('Social Channel'),
         'admin' => [
-          'path' => 'admin/structure/social-channel',
+          'path' => 'admin/acuity/social/channels/structure',
           'access arguments' => ['administer social channels'],
         ],
       ],
@@ -156,7 +221,7 @@ function acuity_social_entity_info() {
       'default' => [
         'label' => t('Social Chat'),
         'admin' => [
-          'path' => 'admin/structure/social-chat',
+          'path' => 'admin/acuity/social/chats/structure',
           'access arguments' => ['administer chats'],
         ],
       ],
@@ -209,4 +274,58 @@ function acuity_social_permission() {
       'description' => t('Allows moderators to delete channels created by any user.'),
     ),
   );
+}
+
+
+
+/**
+ * Menu loader function for acuity_social_channel entities.
+ *
+ * This function is called by Backdrop whenever a URL contains
+ * '%acuity_social_channel' to load the entity object.
+ */
+function acuity_social_channel_load($cid) {
+  return entity_load('acuity_social_channel', $cid);
+}
+
+/**
+ * Page callback to view a single channel entity.
+ */
+function acuity_social_channel_page_view($acuity_social_channel) {
+  // The entity_view() function renders the entity using its template file.
+  return entity_view('acuity_social_channel', [$acuity_social_channel->cid => $acuity_social_channel]);
+}
+
+/**
+ * Access callback for acuity_social_channel entities.
+ *
+ * This function checks permissions for various operations.
+ */
+function acuity_social_channel_access($op, $acuity_social_channel) {
+  $account = $GLOBALS['user'];
+
+  switch ($op) {
+    case 'view':
+      return user_access('view acuity social channels', $account);
+
+    case 'update':
+      // Check if the user can edit their own channel.
+      if (user_access('edit own acuity social channels', $account) && $account->uid == $acuity_social_channel->uid) {
+        return TRUE;
+      }
+      break;
+
+    case 'delete':
+      // Check if the user is a moderator.
+      if (user_access('delete any acuity social channels', $account)) {
+        return TRUE;
+      }
+      // Check if the user can delete their own channel.
+      if (user_access('delete own acuity social channels', $account) && $account->uid == $acuity_social_channel->uid) {
+        return TRUE;
+      }
+      break;
+  }
+
+  return FALSE;
 }
